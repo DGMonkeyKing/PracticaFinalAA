@@ -1,8 +1,10 @@
-function prctj = check(x, y, all_theta) 
-	m = rows(x);
-	n = columns(all_theta);
-	resul = x*all_theta;
-  idx = (resul(:,2) >= resul(:,1)); #ITS BETTER A FALSE RIGHT THAN A FALSE FALSE IN THIS CASE
-	cont = sum(idx==y);
-	prctj = (cont*100)/m;
+function prctj = check(x, y, theta) 
+	resul = sigmoide(theta, x);
+  m = length(resul);
+	right = 0;
+	for i=1:m
+		if(resul(i,1)>=0.5 && y(i,1)==1.0) right++; endif; ##ITS BETTER A FALSE TRUE THAN A FALSE FALSE
+		if(resul(i,1)<0.5 && y(i,1)==0.0) right++; endif;
+	end,
+	prctj = (right*100)/m;
 endfunction

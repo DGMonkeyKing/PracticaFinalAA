@@ -7,3 +7,5 @@ with the prognostic and diagnostic od Breast Cancer.
 Due to its a classification problem we going to start with a logistic regression to know
 if a training example is benign(2) or malign(4). We will translate this values to 0 and 1
 (to make it easier)
+
+Then, I continue with a neural network. I going to play with the number of layers and with the weigths.
