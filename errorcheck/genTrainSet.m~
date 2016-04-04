@@ -1,0 +1,6 @@
+function x = genTrainSet(X, p)
+    x = X;
+    for i = columns(X)+1:p
+        x(:,i) = X(:,1).^i;
+    end,
+endfunction

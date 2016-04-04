@@ -1,0 +1,33 @@
+function [J,grad] = costeRN(params_rn, num_entradas, num_ocultas, num_etiquetas , x, y, lambda)
+	Theta1 =reshape(params_rn(1:num_ocultas*(num_entradas + 1)), num_ocultas ,  (num_entradas + 1));
+	Theta2 =reshape(params_rn((1 + (num_ocultas*(num_entradas + 1))):end), num_etiquetas ,  (num_ocultas+ 1)) ;
+	
+	#x = [ones(rows(x),1),x];
+	#Cambiamos el formato de y
+
+	yt = zeros(rows(y), num_etiquetas);
+	for i = 1:rows(yt)
+		yt(i,y(i,1)) = 1;
+	end,
+
+	c_a1 = columns(Theta1);
+	c_a2 = columns(Theta2);
+	c_a3 = rows(Theta2);
+	m = rows(x);
+
+	a1 = ones(m,c_a1);
+	a2 = ones(m,c_a2);
+	a3 = ones(m,c_a3);
+
+	a1(:,[2:c_a1]) = x;
+	a2(:,[2:c_a2]) = sigmoide(Theta1',a1); 
+	a3 = sigmoide(Theta2',a2);
+
+	J = (1/m) * sum(sum((-yt .* log(a3)) - ((1 .- yt) .* log(1 .- a3))));
+  	J = J + ((lambda/(2*m))*(sum(sum(Theta1(:,[2:end]).^2)) + sum(sum(Theta2(:,[2:end]).^2))));
+  	
+ 	[theta1_grad, theta2_grad] = retro_propagacion(x,y,Theta1,Theta2,num_etiquetas, lambda);
+
+	grad = rolling(theta1_grad, theta2_grad);
+
+endfunction

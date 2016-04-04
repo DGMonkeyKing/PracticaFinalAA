@@ -1,4 +1,4 @@
-function plotDecisionBoundary(theta, X, y)
+function plotDecisionBoundary(theta, X, y, row, column, name)
 %PLOTDECISIONBOUNDARY Plots the data points X and y into a new figure with
 %the decision boundary defined by theta
 %   PLOTDECISIONBOUNDARY(theta, X,y) plots the data points with + for the 
@@ -12,10 +12,13 @@ function plotDecisionBoundary(theta, X, y)
 figure; hold on;
 
 % Plot Data
-pos = find(y==1); neg = find(y == 0);
-plot(X(pos, 2), X(pos, 3), 'k+','LineWidth', 2, 'MarkerSize', 7);
-plot(X(neg, 2), X(neg, 3), 'ko', 'MarkerFaceColor', 'y','MarkerSize', 7);
 
+pos = find(y==1); neg = find(y == 0);
+plot(X(neg, row), X(neg, column), 'ko', 'MarkerFaceColor', 'y','MarkerSize', 7);
+plot(X(pos, row), X(pos, column), 'k+','LineWidth', 2, 'MarkerSize', 7);
+title("FEATURES DEPENDENCES");
+xlabel(name(row,1));
+ylabel(name(column,1));
 
 if size(X, 2) <= 3
     % Only need 2 points to define a line, so choose two endpoints

@@ -1,6 +1,8 @@
 function prctj = check(x, y, theta) 
+	m = rows(x);
+	x = [ones(m,1),x];
 	resul = sigmoide(theta, x);
-  m = length(resul);
+    m = length(resul);
 	right = 0;
 	for i=1:m
 		if(resul(i,1)>=0.5 && y(i,1)==1.0) right++; endif; ##ITS BETTER A FALSE TRUE THAN A FALSE FALSE

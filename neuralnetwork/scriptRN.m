@@ -1,0 +1,105 @@
+entradas = bcwdataC;
+capa_oculta = 4;
+salidas = num_et;
+
+it = [10,40,80,160,320];
+#oc = [2,4,10,50,100];
+oc = [200,400,100,10];
+#STRUCTURE OF OUR NEURAL NETWORK
+BESToc = 0;
+
+#PROBING FOR DIFFERENTS LAMBDAS
+for i = 1:length(lambda)
+	for j = 1:length(oc)
+		theta1 = pesosAleatorios(entradas,oc(j));
+		theta2 = pesosAleatorios(oc(j),salidas);
+
+		[Xtrain,Xval,Xtest,ytrain,yval,ytest] = datasetPart(bcwdataX, bcwdataY, 0.6, 0.2, 0.2);
+
+		options = optimset('MaxIter', 20);
+		coste = @(p) costeRN(p, entradas, oc(j), salidas, Xtrain, ytrain, lambda(i));
+		matriz_enrollada = rolling(theta1,theta2);
+		gradiente = fmincg(coste, matriz_enrollada, options);
+
+		grad1 = reshape(gradiente(1:oc(j) * (entradas + 1)), ...
+		   oc(j), (entradas + 1));
+
+		grad2 = reshape(gradiente((1 + (oc(j) * (entradas + 1))):end), ...
+		   salidas, (oc(j) + 1));
+
+
+		printf("\nCalculating the porcentaje of good-classified examples...\n");
+		prc = checkNeural(Xtest, ytest, grad1, grad2, entradas, oc(j), salidas);
+		printf("For %i hiddens and lambda %f: %f\n", oc(j), lambda(i), prc);	
+		fflush(stdout);
+		if BESTprc <= prc 
+			BESTprc = prc;
+			BESTlambda = lambda(i);
+			BESToc = oc(j);
+		endif
+		learningCurveRN(Xtrain, ytrain, lambda(i), Xval, yval, 20, entradas, oc(j), salidas);
+	end
+end
+
+printf("BEST lambda =%f BESToc = %i with prc= %f\n", BESTlambda, BESToc, BESTprc);
+
+%{
+###NO IMPROVEMENT REACHED
+#TRYING BY INCREASING POLINOMIALY THE NUMBER OF FEATURES
+#TRY ADDING POLYNOMIAL FEATURES
+#degrees=[2, 3, 4, 5];
+
+for i=1:length(oc)
+#	for j=1:length(degrees)
+		printf("For hidden units=%i...\n", oc(i));
+		#printf("For degree=%i...\n", degrees(j));
+		#Xaux = multinom(bcwdataX, degrees(j));
+		#theta1 = pesosAleatorios(columns(Xaux),oc(i));
+		#theta2 = pesosAleatorios(oc(i),salidas);
+
+		#[Xfin, mu, sigma] =featureNormalize(Xaux);
+		[Xtrain,Xval,Xtest,ytrain,yval,ytest] = datasetPart(bcwdataX, bcwdataY, 0.7, 0.3, 0.0);
+		#Xtrain = bsxfun(@minus, Xtrain, mu);
+		#Xtrain = bsxfun(@rdivide, Xtrain, sigma);
+		#Xval = bsxfun(@minus, Xval, mu);
+		#Xval = bsxfun(@rdivide, Xval, sigma);
+		learningCurveRN(Xtrain, ytrain, 0, Xval, yval, 50, columns(Xtrain), oc(i), salidas);
+#	end
+end
+
+BESTx = multinom(bcwdataX, 2);
+[BESTx, mu, sigma] =featureNormalize(BESTx);
+
+entradas = columns(BESTx);
+
+#ALL GOOD NOW
+theta1 = pesosAleatorios(entradas,capa_oculta);
+theta2 = pesosAleatorios(capa_oculta,salidas);
+
+options = optimset('MaxIter', 20);
+coste = @(p) costeRN(p, entradas, capa_oculta, salidas, bcwdataX, bcwdataY, BESTlambda);
+matriz_enrollada = rolling(theta1,theta2);
+gradiente = fmincg(coste, matriz_enrollada, options);
+grad1 = reshape(gradiente(1:capa_oculta * (entradas + 1)), ...
+           capa_oculta, (entradas + 1));
+
+grad2 = reshape(gradiente((1 + (capa_oculta * (entradas + 1))):end), ...
+           salidas, (capa_oculta + 1));
+
+printf("\nCalculating the porcentaje of good-classified examples...\n");
+prc = checkNeural(bcwdataX, bcwdataY, grad1, grad2, entradas, capa_oculta, salidas);
+printf("For %i iterations: %f\n", 20, prc);	
+
+xaxis = [0:0.1:5];
+for i=length(xaxis)
+         for j=length(xaxis)
+    		costeAux(j,i) = costeRN(gradiente, entradas, capa_oculta, salidas, BESTx, bcwdataY, BESTlambda);
+	 end
+    end
+    surface(xaxis,xaxis,costeAux);
+
+%}
+
+
+
+

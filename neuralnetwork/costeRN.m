@@ -2,6 +2,7 @@ function [J,grad] = costeRN(params_rn, num_entradas, num_ocultas, num_etiquetas 
 	Theta1 =reshape(params_rn(1:num_ocultas*(num_entradas + 1)), num_ocultas ,  (num_entradas + 1));
 	Theta2 =reshape(params_rn((1 + (num_ocultas*(num_entradas + 1))):end), num_etiquetas ,  (num_ocultas+ 1)) ;
 	
+	x = [ones(rows(x),1),x];
 	#Cambiamos el formato de y
 
 	yt = zeros(rows(y), num_etiquetas);
